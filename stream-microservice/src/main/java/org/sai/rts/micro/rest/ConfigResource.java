@@ -1,14 +1,17 @@
 package org.sai.rts.micro.rest;
 
-import akka.dispatch.Futures;
+import akka.actor.ActorRef;
 import akka.dispatch.OnFailure;
 import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.sai.rts.micro.actor.ESActor;
+import org.sai.rts.micro.actor.RepositoryActor;
 import org.sai.rts.micro.config.ActorFactory;
-import org.sai.rts.micro.es.ESInitializer;
-import org.sai.rts.micro.model.EventConfig;
+import org.sai.rts.micro.es.ESFacade;
+import org.sai.rts.micro.model.StreamingSearchConfig;
 import org.sai.rts.micro.util.CallbackFunctionLibrary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +30,12 @@ import java.util.List;
 public class ConfigResource {
 
     private final ActorFactory actorFactory;
-    private final ESInitializer esInitializer;
+    private final ESFacade esInitializer;
 
     private static final ObjectMapper m = new ObjectMapper();
 
     @Inject
-    public ConfigResource(final ActorFactory actorFactory, final ESInitializer esInitializer) {
+    public ConfigResource(final ActorFactory actorFactory, final ESFacade esInitializer) {
         this.actorFactory = actorFactory;
         this.esInitializer = esInitializer;
     }
@@ -40,14 +43,16 @@ public class ConfigResource {
     @ApiOperation("Gets all the audit processing configs configured in the system")
     @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.PUT, RequestMethod.OPTIONS, RequestMethod.GET})
     @RequestMapping(value = "/configs", method = RequestMethod.GET, produces = "application/json")
-    public DeferredResult<ResponseEntity<List<EventConfig>>> allEventConfigs() throws Exception {
-        DeferredResult<ResponseEntity<List<EventConfig>>> deferredResult = new DeferredResult<>(5000L);
-        Future<Object> results = Futures.successful(m.readValue(ConfigResource.class.getClassLoader().getResourceAsStream("Configs.json"), List.class));
+    public DeferredResult<ResponseEntity<List<StreamingSearchConfig>>> allEventConfigs() throws Exception {
+        DeferredResult<ResponseEntity<List<StreamingSearchConfig>>> deferredResult = new DeferredResult<>(5000L);
+        ActorRef repositoryActor = actorFactory.newActor(RepositoryActor.class);
+
+        Future<Object> results = Patterns.ask(repositoryActor, StreamingSearchConfig.class, RepositoryActor.timeout_in_seconds);
         OnFailure failureCallback = CallbackFunctionLibrary.onFailure(t -> deferredResult.setErrorResult(new ResponseEntity<>(t.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)));
 
         results.onSuccess(new OnSuccess<Object>() {
             public void onSuccess(final Object results) {
-                deferredResult.setResult(new ResponseEntity<>((List<EventConfig>) results, HttpStatus.OK));
+                deferredResult.setResult(new ResponseEntity<>((List<StreamingSearchConfig>) results, HttpStatus.OK));
             }
         }, actorFactory.executionContext());
 
@@ -60,11 +65,12 @@ public class ConfigResource {
     @RequestMapping(value = "/configs/resync", method = RequestMethod.PUT, produces = "application/json")
     public DeferredResult<ResponseEntity<?>> resyncConfigs(@RequestParam("forceRecreateEsIndex") final boolean forceRecreateEsIndex) throws Exception {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(10000L);
-        Future<Void> results = Futures.successful(esInitializer.init(forceRecreateEsIndex));
+        ActorRef esActor = actorFactory.newActor(ESActor.class);
+        Future<Object> results = Patterns.ask(esActor, forceRecreateEsIndex, ESActor.timeout_in_seconds);
         OnFailure failureCallback = CallbackFunctionLibrary.onFailure(t -> deferredResult.setErrorResult(new ResponseEntity<>(t.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)));
 
-        results.onSuccess(new OnSuccess<Void>() {
-            public void onSuccess(final Void results) {
+        results.onSuccess(new OnSuccess<Object>() {
+            public void onSuccess(final Object results) {
                 deferredResult.setResult(new ResponseEntity<>(HttpStatus.CREATED));
             }
         }, actorFactory.executionContext());

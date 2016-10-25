@@ -87,30 +87,18 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jms</artifactId>
-            <version>${spring.version}</version>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.11</artifactId>
+            <version>0.9.0.1</version>
         </dependency>
+
+
         <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-spring</artifactId>
-            <version>3.7</version>
+            <groupId>org.hdrhistogram</groupId>
+            <artifactId>HdrHistogram</artifactId>
+            <version>2.1.8</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-core</artifactId>
-            <version>5.7.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
         <dependency>
             <groupId>joda-time</groupId>

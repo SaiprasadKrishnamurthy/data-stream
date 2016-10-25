@@ -2,9 +2,11 @@ package org.sai.rts.micro;
 
 import akka.actor.ActorSystem;
 import com.google.common.base.Predicates;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.sai.rts.micro.config.ActorFactory;
 import org.sai.rts.micro.config.AppProperties;
-import org.sai.rts.micro.es.ESInitializer;
+import org.sai.rts.micro.es.ESFacade;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,8 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by saipkri on 07/09/16.
@@ -48,12 +52,30 @@ public class DapApplication {
 
     @Bean
     public ActorFactory actorFactory() throws Exception {
-        return new ActorFactory(actorSystem(), appProperties);
+        return new ActorFactory(actorSystem(), appProperties, kafkaProducer(), esinit());
     }
 
     @Bean
-    public ESInitializer esinit() throws Exception {
-        return new ESInitializer(appProperties);
+    public ESFacade esinit() throws Exception {
+        return new ESFacade(appProperties);
+    }
+
+    @Bean
+    public KafkaProducer<String, String> kafkaProducer() {
+        return new KafkaProducer<>(senderProps());
+    }
+
+    private Map<String, Object> senderProps() {
+        // OK to hard code for now. May be to move it to appProperties later.
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, appProperties.getKafkaBrokersCsv());
+        props.put(ProducerConfig.RETRIES_CONFIG, 0);
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        return props;
     }
 
     /**

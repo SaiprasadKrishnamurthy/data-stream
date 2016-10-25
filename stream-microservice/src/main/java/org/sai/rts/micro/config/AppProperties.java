@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
  * Created by saipkri on 07/09/16.
  */
 @Component
-@ConfigurationProperties("dap")
+@ConfigurationProperties("rts")
 @Data
 public class AppProperties {
     private String esUrl;
+    private int concurrencyFactor;
+    private String kafkaBrokersCsv;
 }
