@@ -1,4 +1,4 @@
-package org.sai.audit.meta.config;
+package org.sai.rts.micro.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

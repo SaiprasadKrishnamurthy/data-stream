@@ -1,10 +1,10 @@
-package org.sai.audit.meta;
+package org.sai.rts.micro;
 
 import akka.actor.ActorSystem;
 import com.google.common.base.Predicates;
-import org.sai.audit.meta.config.ActorFactory;
-import org.sai.audit.meta.config.AppProperties;
-import org.sai.audit.meta.es.ESInitializer;
+import org.sai.rts.micro.config.ActorFactory;
+import org.sai.rts.micro.config.AppProperties;
+import org.sai.rts.micro.es.ESInitializer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -21,13 +21,12 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 /**
  * Created by saipkri on 07/09/16.
  */
-@ComponentScan("org.sai.audit.meta")
+@ComponentScan("org.sai.rts.micro")
 @EnableAutoConfiguration
 @EnableAsync
 @PropertySource("classpath:application.properties")
@@ -39,7 +38,7 @@ public class DapApplication {
     private AppProperties appProperties;
 
     private ActorSystem actorSystem() {
-        return ActorSystem.create("DapActorSystem");
+        return ActorSystem.create("RtsActorSystem");
     }
 
     @Bean
@@ -75,7 +74,7 @@ public class DapApplication {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Audit Config REST API")
+                .title("Realtime Data Streams REST API")
                 .contact("sai@concordesearch.co.uk")
                 .version("1.0")
                 .build();

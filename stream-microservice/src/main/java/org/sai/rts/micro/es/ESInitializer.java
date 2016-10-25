@@ -1,8 +1,8 @@
-package org.sai.audit.meta.es;
+package org.sai.rts.micro.es;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.sai.audit.meta.config.AppProperties;
-import org.sai.audit.meta.model.EventConfig;
+import org.sai.rts.micro.config.AppProperties;
+import org.sai.rts.micro.model.EventConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;

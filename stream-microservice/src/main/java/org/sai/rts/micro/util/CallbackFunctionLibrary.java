@@ -1,4 +1,4 @@
-package org.sai.audit.meta.util;
+package org.sai.rts.micro.util;
 
 import akka.dispatch.Mapper;
 import akka.dispatch.OnFailure;

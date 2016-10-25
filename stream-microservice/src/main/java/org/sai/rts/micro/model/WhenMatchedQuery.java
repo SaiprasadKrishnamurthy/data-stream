@@ -1,4 +1,4 @@
-package org.sai.audit.meta.model;
+package org.sai.rts.micro.model;
 
 import lombok.Data;
 

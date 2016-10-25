@@ -1,9 +1,7 @@
-package org.sai.audit.meta.config;
+package org.sai.rts.micro.config;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
-import akka.routing.RoundRobinPool;
 import scala.concurrent.ExecutionContext;
 
 import java.util.HashMap;
