@@ -1,0 +1,62 @@
+[
+  {
+    "eventCategory": "library",
+    "eventName": "newBookAdded",
+    "esIndexMappings": {
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "categories": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "locations": {
+          "type": "nested",
+          "properties": {
+            "availableCopies": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "reactionRules": [
+      {
+        "whenMatchedQuery": {
+          "id": 1,
+          "query": {
+            "query": {
+              "match": {
+                "author": "breakfast"
+              }
+            }
+          }
+        },
+        "thenFetchQueries": [
+          {
+            "index": "user_prefs",
+            "query": {
+              "query": {
+                "term": {
+                  "userId": {
+                    "value": "sai@kris.com"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
