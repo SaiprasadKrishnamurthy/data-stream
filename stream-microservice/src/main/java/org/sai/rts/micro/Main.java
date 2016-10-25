@@ -36,7 +36,7 @@ import java.util.Map;
 @PropertySource("classpath:application.properties")
 @EnableSwagger2
 @Configuration
-public class DapApplication {
+public class Main {
 
     @Inject
     private AppProperties appProperties;
@@ -107,8 +107,8 @@ public class DapApplication {
         application //
                 .headless(true) //
                 .addCommandLineProperties(true) //
-                .sources(DapApplication.class) //
-                .main(DapApplication.class) //
+                .sources(Main.class) //
+                .main(Main.class) //
                 .registerShutdownHook(true)
                 .run(args);
     }
