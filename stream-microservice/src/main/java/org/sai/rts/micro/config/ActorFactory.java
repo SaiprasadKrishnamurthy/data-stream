@@ -31,7 +31,7 @@ public class ActorFactory {
         this.appProperties = appProperties;
         this.esFacade = esFacade;
         // Create the actor pool.
-        actors.put(KafkaProducerActor.class.getName(), actorSystem.actorOf(Props.create(KafkaProducerActor.class, kafkaTemplate).withRouter(new RoundRobinPool(appProperties.getConcurrencyFactor()))));
+        actors.put(KafkaProducerActor.class.getName(), actorSystem.actorOf(Props.create(KafkaProducerActor.class, kafkaTemplate, this).withRouter(new RoundRobinPool(appProperties.getConcurrencyFactor()))));
         actors.put(RepositoryActor.class.getName(), actorSystem.actorOf(Props.create(RepositoryActor.class).withRouter(new RoundRobinPool(appProperties.getConcurrencyFactor()))));
         actors.put(ESActor.class.getName(), actorSystem.actorOf(Props.create(ESActor.class, this, esFacade).withRouter(new RoundRobinPool(appProperties.getConcurrencyFactor()))));
     }
