@@ -38,7 +38,8 @@ public class ESFacade {
                         if (forceRecreateEsIndex) {
                             try {
                                 restTemplate.delete(appProperties.getEsUrl() + "/" + config.getDataCategoryName());
-                            }catch(HttpClientErrorException ignored){}
+                            } catch (HttpClientErrorException ignored) {
+                            }
                         }
                         if (isIndexMissing(restTemplate, config)) {
                             LOG.info("\n\n");
@@ -47,9 +48,9 @@ public class ESFacade {
                             // create index.
                             restTemplate.postForObject(appProperties.getEsUrl() + "/" + config.getDataCategoryName(), "{}", Map.class, Collections.emptyMap());
 
-                            LOG.info("Creating es mapping for the type: " + config.getDataName());
+                            LOG.info("Creating es mapping for the type: " + config.getDataCategoryName());
                             // apply mappings.
-                            restTemplate.postForObject(appProperties.getEsUrl() + "/" + config.getDataCategoryName() + "/_mapping/" + config.getDataName(), JSONSERIALIZER.writeValueAsString(config.getEsIndexMappings()), Map.class, Collections.emptyMap());
+                            restTemplate.postForObject(appProperties.getEsUrl() + "/" + config.getDataCategoryName() + "/_mapping/" + config.getDataCategoryName(), JSONSERIALIZER.writeValueAsString(config.getEsIndexMappings()), Map.class, Collections.emptyMap());
                             LOG.info("\n\n");
 
                             List<ReactionRule> reactionRules = config.getReactionRules();

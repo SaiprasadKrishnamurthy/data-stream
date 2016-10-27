@@ -43,16 +43,19 @@ public class KafkaProducerActor extends UntypedActor {
                 public void onComplete(Throwable failure, Object success) throws Throwable {
                     List<Map> configs = (List<Map>) success;
                     String topicName = ((Map) message).get("topic").toString();
+                    String partitionKey = ((Map) message).get("partitionKey").toString();
+                    String dataIdentifier = ((Map) message).get("dataIdentifier").toString();
                     String jsonRaw = MAPPER.writeValueAsString(message);
                     List associatedConfigs = configs.stream().filter(config -> config.get("dataCategoryName").toString().equals(topicName)).collect(toList());
                     Map<String, Object> doc = new HashMap<>();
                     doc.put("topicName", topicName);
+                    doc.put("partitionKey", partitionKey);
+                    doc.put("dataIdentifier", dataIdentifier);
                     doc.put("associatedConfigs", associatedConfigs);
                     doc.put("timestamp", System.currentTimeMillis());
                     doc.put("payload", jsonRaw);
                     try {
-                        sender.send(new ProducerRecord<>(
-                                topicName,
+                        sender.send(new ProducerRecord<>(topicName,
                                 MAPPER.writeValueAsString(doc)));
                     } catch (Exception ex) {
                         ex.printStackTrace();

@@ -34,16 +34,17 @@ public class StreamingSearchResource {
         this.actorFactory = actorFactory;
     }
 
-    @ApiOperation("Submits the data asynchronously to be searched realtime using streaming search.")
+    @ApiOperation("Submits the data asynchronously to be searched real-time using streaming search.")
     @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.PUT, RequestMethod.OPTIONS, RequestMethod.GET})
     @RequestMapping(value = "/streamingsearch/{dataCategoryName}/{dataIdentifier}", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public DeferredResult<ResponseEntity<?>> submitData(@RequestBody final Object payload, @PathVariable("dataCategoryName") final String dataCategoryName, @PathVariable("dataIdentifier") final String dataIdentifier) throws Exception {
+    public DeferredResult<ResponseEntity<?>> submitData(@RequestBody final Object payload, @PathVariable("dataCategoryName") final String dataCategoryName, @PathVariable("dataIdentifier") final String dataIdentifier, @RequestParam("groupedFieldName") final String groupedFieldName) throws Exception {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(5000L);
         ActorRef kafkaProducerActor = actorFactory.newActor(KafkaProducerActor.class);
         Map<String, Object> request = new HashMap<>();
         request.put("topic", dataCategoryName);
         request.put("payload", payload);
         request.put("dataIdentifier", dataIdentifier);
+        request.put("partitionKey", groupedFieldName);
 
         // Find the right config.
 
