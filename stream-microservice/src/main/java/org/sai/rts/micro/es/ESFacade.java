@@ -2,13 +2,17 @@ package org.sai.rts.micro.es;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sai.rts.micro.config.AppProperties;
+import org.sai.rts.micro.model.ReactionRule;
 import org.sai.rts.micro.model.StreamingSearchConfig;
+import org.sai.rts.micro.model.ThenFetchQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +36,9 @@ public class ESFacade {
                     try {
                         StreamingSearchConfig config = JSONSERIALIZER.convertValue(eventConfig, StreamingSearchConfig.class);
                         if (forceRecreateEsIndex) {
-                            restTemplate.delete(appProperties.getEsUrl() + "/" + config.getDataCategoryName());
+                            try {
+                                restTemplate.delete(appProperties.getEsUrl() + "/" + config.getDataCategoryName());
+                            }catch(HttpClientErrorException ignored){}
                         }
                         if (isIndexMissing(restTemplate, config)) {
                             LOG.info("\n\n");
@@ -45,8 +51,21 @@ public class ESFacade {
                             // apply mappings.
                             restTemplate.postForObject(appProperties.getEsUrl() + "/" + config.getDataCategoryName() + "/_mapping/" + config.getDataName(), JSONSERIALIZER.writeValueAsString(config.getEsIndexMappings()), Map.class, Collections.emptyMap());
                             LOG.info("\n\n");
+
+                            List<ReactionRule> reactionRules = config.getReactionRules();
+                            for (int i = 0; i < reactionRules.size(); i++) {
+                                int id = i;
+                                ReactionRule reactionRule = reactionRules.get(i);
+                                Map percolateDoc = new LinkedHashMap();
+                                Map whenMatchedQuery = reactionRule.getWhenMatchedQuery().getQuery();
+                                List<ThenFetchQuery> reactQueries = reactionRule.getThenFetchQueries();
+                                percolateDoc.put("query", whenMatchedQuery.get("query"));
+                                percolateDoc.put("meta", reactQueries);
+                                restTemplate.postForObject(appProperties.getEsUrl() + "/" + config.getDataCategoryName() + "/.percolator/" + id, JSONSERIALIZER.writeValueAsString(percolateDoc), Object.class, Collections.emptyMap());
+                            }
                         }
                     } catch (Exception ex) {
+                        ex.printStackTrace();
                         throw new RuntimeException(ex);
                     }
                 }

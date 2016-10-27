@@ -25,7 +25,7 @@ public class ESPercolatedSearchBolt extends BaseRichBolt {
 
     @Override
     public void execute(final Tuple tuple) {
-        System.out.println(boltId+" - Tuple Reached in the percolated bolt: " + tuple);
+        System.out.println(boltId+" - Tuple Reached in the percolated bolt: " + tuple.getValue(0).getClass());
 //        outputCollector.emit(tuple, new Values(tuple.getString(0)));
         outputCollector.ack(tuple);
     }

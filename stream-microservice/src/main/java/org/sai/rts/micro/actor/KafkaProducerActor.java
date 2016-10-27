@@ -48,6 +48,7 @@ public class KafkaProducerActor extends UntypedActor {
                     Map<String, Object> doc = new HashMap<>();
                     doc.put("topicName", topicName);
                     doc.put("associatedConfigs", associatedConfigs);
+                    doc.put("timestamp", System.currentTimeMillis());
                     doc.put("payload", jsonRaw);
                     try {
                         sender.send(new ProducerRecord<>(
